@@ -1,45 +1,45 @@
 Little bit change to run it
-2. 解压文件后进入文件根目录并运行以下命令：
 
-$ autoconf
-$ ./configure
+2. 解压文件后进入文件根目录并运行以下命令：
+  $ autoconf
+  $ ./configure
 3. 进入lib目录并且make
 
 4. 进入libfree目录并且make
+   在该目录运行时出现错误，错误代码如下：
 
-在该目录运行时出现错误，错误代码如下：
+   gcc -I../lib -g -O2 -D_REENTRANT -Wall   -c -o inet_ntop.o inet_ntop.c
+   inet_ntop.c: In function ‘inet_ntop’:
+   inet_ntop.c:60:9: error: argument ‘size’ doesn’t match prototype
+   /usr/include/arpa/inet.h:65:22: error: prototype declaration
+   make: *** [inet_ntop.o] Error 1
+    经过查询inet_ntop.c 和 inet.h 文件发现在头文件中inet_ntop的原型声明与inet_ntop.c中的该函数实现原型的第三个参数类型不一致
 
-gcc -I../lib -g -O2 -D_REENTRANT -Wall   -c -o inet_ntop.o inet_ntop.c
-inet_ntop.c: In function ‘inet_ntop’:
-inet_ntop.c:60:9: error: argument ‘size’ doesn’t match prototype
-/usr/include/arpa/inet.h:65:22: error: prototype declaration
-make: *** [inet_ntop.o] Error 1
- 经过查询inet_ntop.c 和 inet.h 文件发现在头文件中inet_ntop的原型声明与inet_ntop.c中的该函数实现原型的第三个参数类型不一致
+   inet.h 和 inet_ntop.c中的函数原型如下：
 
-inet.h 和 inet_ntop.c中的函数原型如下：
+   //inet.h
+   __const char *inet_ntop (int __af, __const void *__restrict __cp, char *__restrict __buf, socklen_t __len) __THROW;
+   //inet_ntop.c
+   const char *
+   inet_ntop(int af, const void *src, char *dst, size_t size);
+   其中第三个参数类型分别为socklen_t和size_t，解决方案为在inet_ntop.c中加入以下代码：
 
-//inet.h
-__const char *inet_ntop (int __af, __const void *__restrict __cp, char *__restrict __buf, socklen_t __len) __THROW;
-//inet_ntop.c
-const char *
-inet_ntop(int af, const void *src, char *dst, size_t size);
-其中第三个参数类型分别为socklen_t和size_t，解决方案为在inet_ntop.c中加入以下代码：
+   #define size_t socklen_t
 
-#define size_t socklen_t
+
  5. 编译完成后将编译输出的libunp.a拷贝到库文件目录（/usr/lib 和 /usr/lib64）中去:
-
-sudo cp libunp.a /usr/lib  
-sudo cp libunp.a /usr/lib64 
+   sudo cp libunp.a /usr/lib  
+   sudo cp libunp.a /usr/lib64 
+   
 6. 修改头文件unp.h和config.h拷贝到头文件目录中去（/usr/include）
-
-gedit lib/unp.h   //将unp.h中#include "../config.h"修改为#include "config.h"
-sudo cp lib/unp.h /usr/include
-sudo cp config.h /usr/include
+   gedit lib/unp.h   //将unp.h中#include "../config.h"修改为#include "config.h"
+   sudo cp lib/unp.h /usr/include
+   sudo cp config.h /usr/include
+   
 7. 编译测试源代码
-
-cd ./intro  
-gcc daytimetcpcli.c -o daytimetcpcli -lunp
-gcc daytimetcpsrv.c -o daytimetcpsrv -lunp
+ cd ./intro  
+ gcc daytimetcpcli.c -o daytimetcpcli -lunp
+ gcc daytimetcpsrv.c -o daytimetcpsrv -lunp
 
 QUICK AND DIRTY
 ===============
