@@ -30,8 +30,9 @@ Little bit change to run it
  5. 编译完成后将编译输出的libunp.a拷贝到库文件目录（/usr/lib 和 /usr/lib64）中去:
    sudo cp libunp.a /usr/lib  
    sudo cp libunp.a /usr/lib64 
-   
+    
 6. 修改头文件unp.h和config.h拷贝到头文件目录中去（/usr/include）
+   for MacOS only, need install xcode-select --install or installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /   https://apple.stackexchange.com/questions/337940/why-is-usr-include-missing-i-have-xcode-and-command-line-tools-installed-moja 
    gedit lib/unp.h   //将unp.h中#include "../config.h"修改为#include "config.h"
    sudo cp lib/unp.h /usr/include
    sudo cp config.h /usr/include
